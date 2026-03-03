@@ -47,6 +47,7 @@
     root: null,
     trigger: null,
     overlay: null,
+    modalWrapper: null,
     modal: null,
     escHandlerBound: null
   };
@@ -262,11 +263,8 @@
     overlay.setAttribute("data-linkget-action", "overlay-close");
     overlay.setAttribute("aria-hidden", "true");
 
-    var modal = document.createElement("aside");
-    modal.className = NAMESPACE + "-modal";
-    modal.setAttribute("role", "dialog");
-    modal.setAttribute("aria-modal", "true");
-    modal.setAttribute("aria-label", "Быстрая связь");
+    var modalWrapper = document.createElement("div");
+    modalWrapper.className = NAMESPACE + "-modal-wrapper";
 
     var closeButton = document.createElement("button");
     closeButton.type = "button";
@@ -275,8 +273,15 @@
     closeButton.setAttribute("aria-label", "Закрыть окно");
     closeButton.innerHTML = buildCloseIconContent();
 
+    var modal = document.createElement("aside");
+    modal.className = NAMESPACE + "-modal";
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    modal.setAttribute("aria-label", "Быстрая связь");
+
     var title = document.createElement("h2");
     title.className = NAMESPACE + "-title";
+    title.setAttribute("lang", "ru");
     title.textContent = config.title;
 
     var subtitle = document.createElement("p");
@@ -286,7 +291,6 @@
     var messengers = buildMessengerLinks();
     var callBlock = buildCallBlock();
 
-    modal.appendChild(closeButton);
     modal.appendChild(title);
     modal.appendChild(subtitle);
     modal.appendChild(messengers);
@@ -294,10 +298,14 @@
       modal.appendChild(callBlock);
     }
 
+    modalWrapper.appendChild(closeButton);
+    modalWrapper.appendChild(modal);
+
     state.root.appendChild(overlay);
-    state.root.appendChild(modal);
+    state.root.appendChild(modalWrapper);
 
     state.overlay = overlay;
+    state.modalWrapper = modalWrapper;
     state.modal = modal;
     state.modalBuilt = true;
   }
@@ -535,11 +543,12 @@
 
   function openModal() {
     ensureModalBuilt();
-    if (!state.modal || !state.overlay) {
+    if (!state.modal || !state.overlay || !state.modalWrapper) {
       return;
     }
     state.isOpen = true;
     state.overlay.classList.add("is-open");
+    state.modalWrapper.classList.add("is-open");
     state.modal.classList.add("is-open");
     bindEscClose();
     preventBodyScroll();
@@ -547,11 +556,12 @@
   }
 
   function closeModal() {
-    if (!state.modal || !state.overlay) {
+    if (!state.modal || !state.overlay || !state.modalWrapper) {
       return;
     }
     state.isOpen = false;
     state.overlay.classList.remove("is-open");
+    state.modalWrapper.classList.remove("is-open");
     state.modal.classList.remove("is-open");
     unbindEscClose();
     restoreBodyScroll();
