@@ -83,6 +83,8 @@
   position: fixed;
   left: 50%;
   top: 50%;
+  width: fit-content;
+  max-width: calc(100vw - 24px);
   transform: translate(-50%, -50%) scale(0.94);
   z-index: var(--linkget-z-modal);
   opacity: 0;
