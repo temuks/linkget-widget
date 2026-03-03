@@ -83,8 +83,7 @@
   position: fixed;
   left: 50%;
   top: 50%;
-  width: fit-content;
-  max-width: calc(100vw - 24px);
+  width: min(var(--linkget-modal-width), calc(100vw - 24px));
   transform: translate(-50%, -50%) scale(0.94);
   z-index: var(--linkget-z-modal);
   opacity: 0;
@@ -116,8 +115,7 @@
 
 .linkget-modal {
   position: relative;
-  width: min(var(--linkget-modal-width), calc(100% - 24px));
-  max-width: 100%;
+  width: 100%;
   background: var(--linkget-surface);
   color: var(--linkget-text-main);
   border-radius: var(--linkget-radius);
