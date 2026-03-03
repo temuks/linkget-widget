@@ -22,14 +22,12 @@
     messageText: "Здравствуйте! Интересует информация с сайта.",
     phoneLabel: "Предпочитаете звонить?",
     phoneNumber: "",
-    telegramEnabled: true,
-    whatsappEnabled: true,
-    viberEnabled: true,
-    maxEnabled: true,
+    telegramEnabled: false,
+    whatsappEnabled: false,
+    viberEnabled: false,
+    maxEnabled: false,
     telegramId: "",
-    whatsappId: "",
-    viberId: "",
-    maxUrl: "",
+    maxId: "",
     telegramIcon: "icons/telegram.svg",
     whatsappIcon: "icons/whatsapp.svg",
     viberIcon: "icons/viber.svg",
@@ -120,9 +118,7 @@
       viberEnabled: parseBoolean(dataset.viber, DEFAULT_CONFIG.viberEnabled),
       maxEnabled: parseBoolean(dataset.max, DEFAULT_CONFIG.maxEnabled),
       telegramId: dataset.telegramId,
-      whatsappId: dataset.whatsappId,
-      viberId: dataset.viberId,
-      maxUrl: dataset.maxUrl,
+      maxId: dataset.maxId,
       telegramIcon: dataset.telegramIcon,
       whatsappIcon: dataset.whatsappIcon,
       viberIcon: dataset.viberIcon,
@@ -162,9 +158,7 @@
     targetConfig.phoneLabel = String(targetConfig.phoneLabel || DEFAULT_CONFIG.phoneLabel);
     targetConfig.phoneNumber = String(targetConfig.phoneNumber || "").trim();
     targetConfig.telegramId = String(targetConfig.telegramId || "").trim();
-    targetConfig.whatsappId = String(targetConfig.whatsappId || "").trim();
-    targetConfig.viberId = String(targetConfig.viberId || "").trim();
-    targetConfig.maxUrl = String(targetConfig.maxUrl || "").trim();
+    targetConfig.maxId = String(targetConfig.maxId || "").trim();
     targetConfig.buttonColor = isValidColor(targetConfig.buttonColor) ? targetConfig.buttonColor : DEFAULT_CONFIG.buttonColor;
   }
 
@@ -329,29 +323,31 @@
     list.className = NAMESPACE + "-messengers";
     list.setAttribute("aria-label", "Выберите мессенджер для связи");
 
-    var waPhone = config.whatsappId || config.phoneNumber;
-    var waDigits = getPhoneDigits(waPhone);
-    var waHref = waDigits ? "https://wa.me/" + waDigits + (msg ? "?text=" + encodeURIComponent(msg) : "") : "";
+    var phoneDigits = getPhoneDigits(config.phoneNumber);
 
-    var tgRaw = config.telegramId;
-    var tgHref = "";
-    if (tgRaw) {
-      var isFullUrl = /^(https?:\/\/)?t\.me\//i.test(tgRaw) || /^https?:\/\//i.test(tgRaw);
-      var base = isFullUrl ? tgRaw.replace(/\?.*$/, "") : "https://t.me/" + tgRaw.replace(/^@/, "");
-      tgHref = base + (msg ? (base.indexOf("?") >= 0 ? "&" : "?") + "text=" + encodeURIComponent(msg) : "");
+    var waHref = "";
+    if (phoneDigits) {
+      waHref = "https://wa.me/" + phoneDigits + (msg ? "?text=" + encodeURIComponent(msg) : "");
     }
 
-    var vbPhone = config.viberId || config.phoneNumber;
-    var vbDigits = getPhoneDigits(vbPhone);
-    var vbHref = vbDigits ? "viber://chat?number=" + vbDigits : "";
+    var tgHref = "";
+    var tgRaw = config.telegramId;
+    if (tgRaw) {
+      var isFullTg = /^(https?:\/\/)?t\.me\//i.test(tgRaw);
+      var tgBase = isFullTg ? tgRaw.replace(/\?.*$/, "") : "https://t.me/" + tgRaw.replace(/^@/, "");
+      tgHref = tgBase + (msg ? (tgBase.indexOf("?") >= 0 ? "&" : "?") + "text=" + encodeURIComponent(msg) : "");
+    }
 
-    var maxHref = config.maxUrl ? config.maxUrl.replace("{text}", encodeURIComponent(msg)) : "";
+    var vbHref = phoneDigits ? "viber://add?number=" + phoneDigits : "";
+
+    var maxId = config.maxId.replace(/^https?:\/\/(www\.)?max\.ru\/u\//i, "").replace(/^max:\/\/max\.ru\/u\//i, "").replace(/\/$/, "");
+    var maxHref = maxId ? "https://max.ru/u/" + maxId : "";
 
     var messengerDefinitions = [
       { key: "telegram", enabled: config.telegramEnabled && tgHref, href: tgHref, icon: config.telegramIcon, label: "Telegram" },
-      { key: "whatsapp", enabled: config.whatsappEnabled && waDigits, href: waHref, icon: config.whatsappIcon, label: "WhatsApp" },
-      { key: "viber", enabled: config.viberEnabled && vbDigits, href: vbHref, icon: config.viberIcon, label: "Viber" },
-      { key: "max", enabled: config.maxEnabled && maxHref, href: maxHref, icon: config.maxIcon, label: "Max" }
+      { key: "whatsapp", enabled: config.whatsappEnabled && phoneDigits, href: waHref, icon: config.whatsappIcon, label: "WhatsApp" },
+      { key: "viber", enabled: config.viberEnabled && phoneDigits, href: vbHref, icon: config.viberIcon, label: "Viber" },
+      { key: "max", enabled: config.maxEnabled && maxId, href: maxHref, icon: config.maxIcon, label: "Max" }
     ];
 
     messengerDefinitions.forEach(function appendItem(definition) {
@@ -530,7 +526,7 @@
     }
     try {
       var parsed = new URL(url, window.location.href);
-      var allowedProtocols = ["https:", "http:", "viber:"];
+      var allowedProtocols = ["https:", "http:", "viber:", "tg:"];
       return allowedProtocols.indexOf(parsed.protocol) >= 0;
     } catch (error) {
       return false;
