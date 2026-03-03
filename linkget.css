@@ -263,10 +263,9 @@
   }
 
   .linkget-close {
-    right: auto;
-    left: 50%;
-    top: -25px;
-    transform: translateX(-50%);
+    right: 0;
+    left: auto;
+    top: 0px;
   }
 
   .linkget-close:hover,
@@ -275,7 +274,6 @@
   }
 
   .linkget-modal {
-    width: calc(100% - 20px);
     max-width: none;
     padding: 18px 14px 14px;
   }
