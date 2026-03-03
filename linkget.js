@@ -17,24 +17,27 @@
     position: "bottom-right",
     buttonColor: "#2A6BFF",
     buttonIcon: "chat",
-    title: "Поделиться страницей",
-    shareText: "Нажмите, чтобы поделиться",
+    title: "Что-то понравилось или хотите уточнение?",
+    description: "Напишите или позвоните нам.",
+    messageText: "Здравствуйте! Интересует информация с сайта.",
     phoneLabel: "Предпочитаете звонить?",
     phoneNumber: "",
     telegramEnabled: true,
     whatsappEnabled: true,
     viberEnabled: true,
     maxEnabled: true,
+    telegramId: "",
+    whatsappId: "",
+    viberId: "",
+    maxUrl: "",
     telegramIcon: "icons/telegram.svg",
     whatsappIcon: "icons/whatsapp.svg",
     viberIcon: "icons/viber.svg",
     maxIcon: "icons/max.svg",
     closeIcon: "icons/close.svg",
-    qrSize: 200,
     lazyLoad: true,
     analytics: false,
-    analyticsCallback: "",
-    maxShareUrlTemplate: "https://max.ru/?text={text}"
+    analyticsCallback: ""
   };
 
   var state = {
@@ -47,7 +50,6 @@
     trigger: null,
     overlay: null,
     modal: null,
-    qrContainer: null,
     escHandlerBound: null
   };
 
@@ -109,23 +111,26 @@
       buttonColor: dataset.buttonColor,
       buttonIcon: dataset.buttonIcon,
       title: dataset.title,
-      shareText: dataset.shareText,
+      description: dataset.description || dataset.shareText,
+      messageText: dataset.messageText,
       phoneLabel: dataset.phoneLabel,
       phoneNumber: dataset.phoneNumber,
       telegramEnabled: parseBoolean(dataset.telegram, DEFAULT_CONFIG.telegramEnabled),
       whatsappEnabled: parseBoolean(dataset.whatsapp, DEFAULT_CONFIG.whatsappEnabled),
       viberEnabled: parseBoolean(dataset.viber, DEFAULT_CONFIG.viberEnabled),
       maxEnabled: parseBoolean(dataset.max, DEFAULT_CONFIG.maxEnabled),
+      telegramId: dataset.telegramId,
+      whatsappId: dataset.whatsappId,
+      viberId: dataset.viberId,
+      maxUrl: dataset.maxUrl,
       telegramIcon: dataset.telegramIcon,
       whatsappIcon: dataset.whatsappIcon,
       viberIcon: dataset.viberIcon,
       maxIcon: dataset.maxIcon,
       closeIcon: dataset.closeIcon,
-      qrSize: parseNumber(dataset.qrSize, DEFAULT_CONFIG.qrSize),
       lazyLoad: parseBoolean(dataset.lazyLoad, DEFAULT_CONFIG.lazyLoad),
       analytics: parseBoolean(dataset.analytics, DEFAULT_CONFIG.analytics),
-      analyticsCallback: dataset.analyticsCallback,
-      maxShareUrlTemplate: dataset.maxShareTemplate
+      analyticsCallback: dataset.analyticsCallback
     };
   }
 
@@ -152,12 +157,19 @@
     targetConfig.position = targetConfig.position === "bottom-left" ? "bottom-left" : "bottom-right";
     targetConfig.buttonIcon = targetConfig.buttonIcon === "message" ? "message" : "chat";
     targetConfig.title = String(targetConfig.title || DEFAULT_CONFIG.title);
-    targetConfig.shareText = String(targetConfig.shareText || DEFAULT_CONFIG.shareText);
+    targetConfig.description = String(targetConfig.description || targetConfig.shareText || DEFAULT_CONFIG.description);
+    targetConfig.messageText = String(targetConfig.messageText || DEFAULT_CONFIG.messageText);
     targetConfig.phoneLabel = String(targetConfig.phoneLabel || DEFAULT_CONFIG.phoneLabel);
     targetConfig.phoneNumber = String(targetConfig.phoneNumber || "").trim();
-    targetConfig.qrSize = Math.max(128, Math.min(320, parseInt(targetConfig.qrSize, 10) || DEFAULT_CONFIG.qrSize));
+    targetConfig.telegramId = String(targetConfig.telegramId || "").trim();
+    targetConfig.whatsappId = String(targetConfig.whatsappId || "").trim();
+    targetConfig.viberId = String(targetConfig.viberId || "").trim();
+    targetConfig.maxUrl = String(targetConfig.maxUrl || "").trim();
     targetConfig.buttonColor = isValidColor(targetConfig.buttonColor) ? targetConfig.buttonColor : DEFAULT_CONFIG.buttonColor;
-    targetConfig.maxShareUrlTemplate = String(targetConfig.maxShareUrlTemplate || DEFAULT_CONFIG.maxShareUrlTemplate);
+  }
+
+  function getPhoneDigits(phone) {
+    return String(phone || "").replace(/[^\d+]/g, "");
   }
 
   function isValidColor(value) {
@@ -224,7 +236,7 @@
     var trigger = document.createElement("button");
     trigger.type = "button";
     trigger.className = NAMESPACE + "-trigger";
-    trigger.setAttribute("aria-label", "Открыть окно шаринга");
+    trigger.setAttribute("aria-label", "Быстрая связь с нами");
     trigger.setAttribute("data-linkget-action", "open");
     trigger.innerHTML = getTriggerIconSvg();
     state.root.appendChild(trigger);
@@ -260,7 +272,7 @@
     modal.className = NAMESPACE + "-modal";
     modal.setAttribute("role", "dialog");
     modal.setAttribute("aria-modal", "true");
-    modal.setAttribute("aria-label", "Поделиться страницей");
+    modal.setAttribute("aria-label", "Быстрая связь");
 
     var closeButton = document.createElement("button");
     closeButton.type = "button";
@@ -275,15 +287,7 @@
 
     var subtitle = document.createElement("p");
     subtitle.className = NAMESPACE + "-subtitle";
-    subtitle.textContent = config.shareText;
-
-    var qrWrap = document.createElement("div");
-    qrWrap.className = NAMESPACE + "-qr-wrap";
-    var qrHolder = document.createElement("div");
-    qrHolder.className = NAMESPACE + "-qr-fallback";
-    qrHolder.setAttribute("data-linkget-qr", "placeholder");
-    qrHolder.textContent = "Генерация QR-кода...";
-    qrWrap.appendChild(qrHolder);
+    subtitle.textContent = config.description;
 
     var messengers = buildMessengerLinks();
     var callBlock = buildCallBlock();
@@ -291,7 +295,6 @@
     modal.appendChild(closeButton);
     modal.appendChild(title);
     modal.appendChild(subtitle);
-    modal.appendChild(qrWrap);
     modal.appendChild(messengers);
     if (callBlock) {
       modal.appendChild(callBlock);
@@ -302,7 +305,6 @@
 
     state.overlay = overlay;
     state.modal = modal;
-    state.qrContainer = qrWrap;
     state.modalBuilt = true;
   }
 
@@ -322,41 +324,34 @@
   }
 
   function buildMessengerLinks() {
-    var url = getCurrentPageUrl();
-    var text = config.shareText + " " + url;
+    var msg = config.messageText;
     var list = document.createElement("div");
     list.className = NAMESPACE + "-messengers";
-    list.setAttribute("aria-label", "Выберите мессенджер для шаринга");
+    list.setAttribute("aria-label", "Выберите мессенджер для связи");
+
+    var waPhone = config.whatsappId || config.phoneNumber;
+    var waDigits = getPhoneDigits(waPhone);
+    var waHref = waDigits ? "https://wa.me/" + waDigits + (msg ? "?text=" + encodeURIComponent(msg) : "") : "";
+
+    var tgRaw = config.telegramId;
+    var tgHref = "";
+    if (tgRaw) {
+      var isFullUrl = /^(https?:\/\/)?t\.me\//i.test(tgRaw) || /^https?:\/\//i.test(tgRaw);
+      var base = isFullUrl ? tgRaw.replace(/\?.*$/, "") : "https://t.me/" + tgRaw.replace(/^@/, "");
+      tgHref = base + (msg ? (base.indexOf("?") >= 0 ? "&" : "?") + "text=" + encodeURIComponent(msg) : "");
+    }
+
+    var vbPhone = config.viberId || config.phoneNumber;
+    var vbDigits = getPhoneDigits(vbPhone);
+    var vbHref = vbDigits ? "viber://chat?number=" + vbDigits : "";
+
+    var maxHref = config.maxUrl ? config.maxUrl.replace("{text}", encodeURIComponent(msg)) : "";
 
     var messengerDefinitions = [
-      {
-        key: "telegram",
-        enabled: config.telegramEnabled,
-        href: "https://t.me/share/url?url=" + encodeURIComponent(url) + "&text=" + encodeURIComponent(config.shareText),
-        icon: config.telegramIcon,
-        label: "Telegram"
-      },
-      {
-        key: "whatsapp",
-        enabled: config.whatsappEnabled,
-        href: "https://wa.me/?text=" + encodeURIComponent(text),
-        icon: config.whatsappIcon,
-        label: "WhatsApp"
-      },
-      {
-        key: "viber",
-        enabled: config.viberEnabled,
-        href: "viber://forward?text=" + encodeURIComponent(text),
-        icon: config.viberIcon,
-        label: "Viber"
-      },
-      {
-        key: "max",
-        enabled: config.maxEnabled,
-        href: buildMaxShareUrl(url, config.shareText),
-        icon: config.maxIcon,
-        label: "Max"
-      }
+      { key: "telegram", enabled: config.telegramEnabled && tgHref, href: tgHref, icon: config.telegramIcon, label: "Telegram" },
+      { key: "whatsapp", enabled: config.whatsappEnabled && waDigits, href: waHref, icon: config.whatsappIcon, label: "WhatsApp" },
+      { key: "viber", enabled: config.viberEnabled && vbDigits, href: vbHref, icon: config.viberIcon, label: "Viber" },
+      { key: "max", enabled: config.maxEnabled && maxHref, href: maxHref, icon: config.maxIcon, label: "Max" }
     ];
 
     messengerDefinitions.forEach(function appendItem(definition) {
@@ -369,7 +364,7 @@
       anchor.setAttribute("href", safeHref);
       anchor.setAttribute("target", "_blank");
       anchor.setAttribute("rel", "noopener noreferrer nofollow");
-      anchor.setAttribute("aria-label", "Поделиться через " + definition.label);
+      anchor.setAttribute("aria-label", "Написать в " + definition.label);
       anchor.setAttribute("data-linkget-action", "messenger");
       anchor.setAttribute("data-linkget-messenger", definition.key);
 
@@ -392,7 +387,7 @@
     if (!list.childElementCount) {
       var emptyState = document.createElement("p");
       emptyState.className = NAMESPACE + "-subtitle";
-      emptyState.textContent = "Мессенджеры отключены в конфигурации";
+      emptyState.textContent = "Мессенджеры не настроены";
       list.appendChild(emptyState);
     }
 
@@ -422,10 +417,6 @@
     return call;
   }
 
-  function buildMaxShareUrl(url, title) {
-    var template = config.maxShareUrlTemplate;
-    return template.replace("{url}", encodeURIComponent(url)).replace("{text}", encodeURIComponent(title));
-  }
 
   function sanitizeAttribute(value) {
     return String(value).replace(/"/g, "&quot;");
@@ -447,7 +438,6 @@
     }
     if (config.lazyLoad) {
       ensureModalBuilt();
-      renderQr();
     }
   }
 
@@ -521,53 +511,6 @@
     document.body.style.overflow = state.previousBodyOverflow;
   }
 
-  function renderQr() {
-    if (!state.qrContainer) {
-      return;
-    }
-    var url = getCurrentPageUrl();
-    var size = config.qrSize;
-    state.qrContainer.innerHTML = "";
-    var fallback = createQrFallback(url);
-
-    if (window.QRCode && typeof window.QRCode === "function") {
-      try {
-        var qrNode = document.createElement("div");
-        qrNode.className = NAMESPACE + "-qr";
-        state.qrContainer.appendChild(qrNode);
-        new window.QRCode(qrNode, {
-          text: url,
-          width: size,
-          height: size
-        });
-        return;
-      } catch (error) {
-        state.qrContainer.innerHTML = "";
-      }
-    }
-
-    var image = document.createElement("img");
-    image.className = NAMESPACE + "-qr";
-    image.width = size;
-    image.height = size;
-    image.loading = "lazy";
-    image.alt = "QR-код текущей страницы";
-    image.referrerPolicy = "no-referrer";
-    image.src = "https://api.qrserver.com/v1/create-qr-code/?size=" + size + "x" + size + "&data=" + encodeURIComponent(url);
-    image.onerror = function onQrLoadError() {
-      state.qrContainer.innerHTML = "";
-      state.qrContainer.appendChild(fallback);
-    };
-    state.qrContainer.appendChild(image);
-  }
-
-  function createQrFallback(url) {
-    var fallback = document.createElement("div");
-    fallback.className = NAMESPACE + "-qr-fallback";
-    fallback.textContent = "Не удалось загрузить QR-код. Ссылка: " + url;
-    return fallback;
-  }
-
   function getCurrentPageUrl() {
     var rawUrl = window.location.href;
     try {
@@ -599,7 +542,6 @@
     if (!state.modal || !state.overlay) {
       return;
     }
-    renderQr();
     state.isOpen = true;
     state.overlay.classList.add("is-open");
     state.modal.classList.add("is-open");
