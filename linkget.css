@@ -1,0 +1,305 @@
+.linkget-root {
+  --linkget-button-size: 60px;
+  --linkget-modal-width: 320px;
+  --linkget-radius: 16px;
+  --linkget-shadow: 0 22px 50px rgba(15, 23, 42, 0.22);
+  --linkget-overlay-bg: rgba(17, 24, 39, 0.45);
+  --linkget-surface: #f4ecde;
+  --linkget-surface-soft: #f8f2e8;
+  --linkget-text-main: #2b3440;
+  --linkget-text-muted: #6b7280;
+  --linkget-accent: #2a6bff;
+  --linkget-z-button: 9998;
+  --linkget-z-overlay: 9998;
+  --linkget-z-modal: 9999;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+.linkget-root,
+.linkget-root * {
+  box-sizing: border-box;
+}
+
+.linkget-trigger {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: var(--linkget-button-size);
+  height: var(--linkget-button-size);
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  z-index: var(--linkget-z-button);
+  box-shadow: 0 14px 30px rgba(23, 37, 84, 0.3);
+  background: linear-gradient(135deg, #36c4ff 0%, #2563eb 55%, #6d28d9 100%);
+  background-size: 200% 200%;
+  animation: linkget-trigger-gradient 6s ease infinite;
+  transform: scale(1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.linkget-trigger:hover,
+.linkget-trigger:focus-visible {
+  transform: scale(1.06);
+  box-shadow: 0 16px 36px rgba(37, 99, 235, 0.38);
+}
+
+.linkget-trigger:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.9);
+  outline-offset: 2px;
+}
+
+.linkget-position-bottom-left .linkget-trigger {
+  left: 20px;
+  right: auto;
+}
+
+.linkget-icon-chat {
+  width: 26px;
+  height: 26px;
+  fill: currentColor;
+}
+
+.linkget-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--linkget-overlay-bg);
+  z-index: var(--linkget-z-overlay);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.24s ease;
+}
+
+.linkget-overlay.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.linkget-modal {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: min(var(--linkget-modal-width), calc(100% - 24px));
+  transform: translate(-50%, -47%) scale(0.94);
+  background: var(--linkget-surface);
+  color: var(--linkget-text-main);
+  border-radius: var(--linkget-radius);
+  padding: 20px 18px 18px;
+  box-shadow: var(--linkget-shadow);
+  z-index: var(--linkget-z-modal);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.24s ease, transform 0.24s ease;
+}
+
+.linkget-modal.is-open {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+}
+
+.linkget-close {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  border: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: rgba(15, 23, 42, 0.09);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.linkget-close:hover,
+.linkget-close:focus-visible {
+  background: rgba(15, 23, 42, 0.16);
+  transform: scale(1.06);
+}
+
+.linkget-close:focus-visible {
+  outline: 2px solid #2563eb;
+}
+
+.linkget-close-icon {
+  width: 16px;
+  height: 16px;
+  fill: #374151;
+}
+
+.linkget-title {
+  margin: 8px 30px 0 0;
+  text-align: center;
+  font-size: 24px;
+  line-height: 1.22;
+  font-weight: 800;
+}
+
+.linkget-subtitle {
+  margin: 12px 0 0;
+  text-align: center;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--linkget-text-main);
+}
+
+.linkget-qr-wrap {
+  margin: 16px auto 0;
+  border-radius: 14px;
+  background: var(--linkget-surface-soft);
+  width: fit-content;
+  padding: 10px;
+}
+
+.linkget-qr,
+.linkget-qr-fallback {
+  width: 200px;
+  height: 200px;
+  display: block;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.linkget-qr-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--linkget-text-muted);
+  padding: 14px;
+  word-break: break-word;
+}
+
+.linkget-messengers {
+  margin: 14px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.linkget-messenger-link {
+  width: 50px;
+  height: 50px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  background: #ffffff;
+  box-shadow: 0 10px 18px rgba(15, 23, 42, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.linkget-messenger-link:hover,
+.linkget-messenger-link:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.17);
+}
+
+.linkget-messenger-link:focus-visible {
+  outline: 2px solid #2563eb;
+}
+
+.linkget-messenger-icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.linkget-call {
+  margin-top: 18px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.55);
+  padding: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.linkget-call-label {
+  margin: 0;
+  color: #64748b;
+  font-size: 16px;
+  line-height: 1.2;
+  max-width: 140px;
+}
+
+.linkget-phone-link {
+  font-size: 36px;
+  text-decoration: none;
+  color: var(--linkget-text-main);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.3px;
+}
+
+@keyframes linkget-trigger-gradient {
+  0%,
+  100% {
+    background-image: linear-gradient(135deg, #36c4ff 0%, #2563eb 55%, #6d28d9 100%);
+    background-position: 0% 50%;
+  }
+
+  34% {
+    background-image: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+    background-position: 50% 50%;
+  }
+
+  68% {
+    background-image: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    background-position: 100% 50%;
+  }
+}
+
+@media (max-width: 479px) {
+  .linkget-trigger {
+    bottom: 14px;
+    right: 14px;
+  }
+
+  .linkget-position-bottom-left .linkget-trigger {
+    left: 14px;
+    right: auto;
+  }
+
+  .linkget-modal {
+    width: calc(100% - 20px);
+    max-width: none;
+    padding: 18px 14px 14px;
+  }
+
+  .linkget-title {
+    font-size: 22px;
+  }
+
+  .linkget-subtitle {
+    font-size: 15px;
+  }
+
+  .linkget-qr,
+  .linkget-qr-fallback {
+    width: min(70vw, 210px);
+    height: min(70vw, 210px);
+  }
+
+  .linkget-call {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .linkget-phone-link {
+    font-size: 30px;
+  }
+}
