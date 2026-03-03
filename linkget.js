@@ -26,12 +26,15 @@
     whatsappEnabled: false,
     viberEnabled: false,
     maxEnabled: false,
+    vkEnabled: false,
     telegramId: "",
     maxId: "",
+    vkId: "",
     telegramIcon: "icons/telegram.svg",
     whatsappIcon: "icons/whatsapp.svg",
     viberIcon: "icons/viber.svg",
     maxIcon: "icons/max.svg",
+    vkIcon: "icons/vk.svg",
     closeIcon: "icons/close.svg",
     lazyLoad: true,
     analytics: false,
@@ -73,7 +76,7 @@
   }
 
   function resolveIconUrls(targetConfig, baseUrl) {
-    var iconKeys = ["telegramIcon", "whatsappIcon", "viberIcon", "maxIcon", "closeIcon"];
+    var iconKeys = ["telegramIcon", "whatsappIcon", "viberIcon", "maxIcon", "vkIcon", "closeIcon"];
     iconKeys.forEach(function resolveKey(key) {
       targetConfig[key] = resolveUrl(targetConfig[key], baseUrl);
     });
@@ -118,12 +121,15 @@
       whatsappEnabled: parseBoolean(dataset.whatsapp, DEFAULT_CONFIG.whatsappEnabled),
       viberEnabled: parseBoolean(dataset.viber, DEFAULT_CONFIG.viberEnabled),
       maxEnabled: parseBoolean(dataset.max, DEFAULT_CONFIG.maxEnabled),
+      vkEnabled: parseBoolean(dataset.vk, DEFAULT_CONFIG.vkEnabled),
       telegramId: dataset.telegramId,
       maxId: dataset.maxId,
+      vkId: dataset.vkId,
       telegramIcon: dataset.telegramIcon,
       whatsappIcon: dataset.whatsappIcon,
       viberIcon: dataset.viberIcon,
       maxIcon: dataset.maxIcon,
+      vkIcon: dataset.vkIcon,
       closeIcon: dataset.closeIcon,
       lazyLoad: parseBoolean(dataset.lazyLoad, DEFAULT_CONFIG.lazyLoad),
       analytics: parseBoolean(dataset.analytics, DEFAULT_CONFIG.analytics),
@@ -160,6 +166,7 @@
     targetConfig.phoneNumber = String(targetConfig.phoneNumber || "").trim();
     targetConfig.telegramId = String(targetConfig.telegramId || "").trim();
     targetConfig.maxId = String(targetConfig.maxId || "").trim();
+    targetConfig.vkId = String(targetConfig.vkId || "").trim();
     targetConfig.buttonColor = isValidColor(targetConfig.buttonColor) ? targetConfig.buttonColor : DEFAULT_CONFIG.buttonColor;
   }
 
@@ -351,11 +358,15 @@
     var maxId = config.maxId.replace(/^https?:\/\/(www\.)?max\.ru\/u\//i, "").replace(/^max:\/\/max\.ru\/u\//i, "").replace(/\/$/, "");
     var maxHref = maxId ? "https://max.ru/u/" + maxId : "";
 
+    var vkRaw = config.vkId.replace(/^https?:\/\/(www\.)?(vk\.me|vk\.com)\//i, "").replace(/\/$/, "");
+    var vkHref = vkRaw ? "https://vk.me/" + vkRaw : "";
+
     var messengerDefinitions = [
       { key: "telegram", enabled: config.telegramEnabled && tgHref, href: tgHref, icon: config.telegramIcon, label: "Telegram" },
       { key: "whatsapp", enabled: config.whatsappEnabled && phoneDigits, href: waHref, icon: config.whatsappIcon, label: "WhatsApp" },
       { key: "viber", enabled: config.viberEnabled && phoneDigits, href: vbHref, icon: config.viberIcon, label: "Viber" },
-      { key: "max", enabled: config.maxEnabled && maxId, href: maxHref, icon: config.maxIcon, label: "Max" }
+      { key: "max", enabled: config.maxEnabled && maxId, href: maxHref, icon: config.maxIcon, label: "Max" },
+      { key: "vk", enabled: config.vkEnabled && vkRaw, href: vkHref, icon: config.vkIcon, label: "VK" }
     ];
 
     messengerDefinitions.forEach(function appendItem(definition) {

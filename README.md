@@ -7,7 +7,7 @@
 - `linkget.js` — основной код виджета
 - `linkget.css` — стили
 - `widget.js`, `widget.css` — алиасы для удобного CDN-подключения
-- `icons/` — SVG-иконки (`telegram.svg`, `whatsapp.svg`, `viber.svg`, `max.svg`, `close.svg`)
+- `icons/` — SVG-иконки (`telegram.svg`, `whatsapp.svg`, `viber.svg`, `max.svg`, `vk.svg`, `close.svg`)
 
 ## Подключение
 
@@ -28,6 +28,8 @@
   data-whatsapp="true"
   data-viber="true"
   data-max="true"
+  data-vk="true"
+  data-vk-id="your_vk_group"
   data-lazy-load="true"
   data-analytics="true"
 ></script>
@@ -43,7 +45,8 @@
 | `data-phone-number` | Номер телефона (звонок + WhatsApp + Viber) |
 | `data-telegram-id` | Username или группа Telegram (`support_group`, `joinchat/xxx`) |
 | `data-max-id` | ID профиля Max из ссылки (длинная строка или username) |
-| `data-telegram` / `data-whatsapp` / `data-viber` / `data-max` | `true` — показать кнопку, иначе скрыта |
+| `data-vk-id` | Короткое имя группы VK (например `club123456` или `groupname`) |
+| `data-telegram` / `data-whatsapp` / `data-viber` / `data-max` / `data-vk` | `true` — показать кнопку, иначе скрыта |
 
 ## Конфиг через JS
 
@@ -55,7 +58,8 @@
     messageText: "Здравствуйте! Интересует информация с сайта.",
     phoneNumber: "+70000000000",
     telegramId: "support_group",
-    maxId: "your_max_profile_id"
+    maxId: "your_max_profile_id",
+    vkId: "your_vk_group"
   };
 </script>
 ```
