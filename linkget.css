@@ -99,8 +99,9 @@
 
 .linkget-close {
   position: absolute;
-  right: -8px;
-  top: -8px;
+  z-index: 999;
+  right: -40px;
+  top: -25px;
   border: 0;
   width: 32px;
   height: 32px;
@@ -259,6 +260,18 @@
   .linkget-position-bottom-left .linkget-trigger {
     left: 14px;
     right: auto;
+  }
+
+  .linkget-close {
+    right: auto;
+    left: 50%;
+    top: -25px;
+    transform: translateX(-50%);
+  }
+
+  .linkget-close:hover,
+  .linkget-close:focus-visible {
+    transform: translateX(-50%) scale(1.06);
   }
 
   .linkget-modal {
