@@ -28,6 +28,7 @@
     maxEnabled: false,
     vkEnabled: false,
     telegramId: "",
+    whatsappId: "",
     maxId: "",
     vkId: "",
     telegramIcon: "icons/telegram.svg",
@@ -123,6 +124,7 @@
       maxEnabled: parseBoolean(dataset.max, DEFAULT_CONFIG.maxEnabled),
       vkEnabled: parseBoolean(dataset.vk, DEFAULT_CONFIG.vkEnabled),
       telegramId: dataset.telegramId,
+      whatsappId: dataset.whatsappId,
       maxId: dataset.maxId,
       vkId: dataset.vkId,
       telegramIcon: dataset.telegramIcon,
@@ -165,6 +167,7 @@
     targetConfig.phoneLabel = String(targetConfig.phoneLabel || DEFAULT_CONFIG.phoneLabel);
     targetConfig.phoneNumber = String(targetConfig.phoneNumber || "").trim();
     targetConfig.telegramId = String(targetConfig.telegramId || "").trim();
+    targetConfig.whatsappId = String(targetConfig.whatsappId || "").trim();
     targetConfig.maxId = String(targetConfig.maxId || "").trim();
     targetConfig.vkId = String(targetConfig.vkId || "").trim();
     targetConfig.buttonColor = isValidColor(targetConfig.buttonColor) ? targetConfig.buttonColor : DEFAULT_CONFIG.buttonColor;
@@ -339,10 +342,11 @@
     list.setAttribute("aria-label", "Выберите мессенджер для связи");
 
     var phoneDigits = getPhoneDigits(config.phoneNumber);
+    var waPhoneDigits = getPhoneDigits(config.whatsappId || config.phoneNumber);
 
     var waHref = "";
-    if (phoneDigits) {
-      waHref = "https://wa.me/" + phoneDigits + (msg ? "?text=" + encodeURIComponent(msg) : "");
+    if (waPhoneDigits) {
+      waHref = "https://wa.me/" + waPhoneDigits + (msg ? "?text=" + encodeURIComponent(msg) : "");
     }
 
     var tgHref = "";
@@ -363,7 +367,7 @@
 
     var messengerDefinitions = [
       { key: "telegram", enabled: config.telegramEnabled && tgHref, href: tgHref, icon: config.telegramIcon, label: "Telegram" },
-      { key: "whatsapp", enabled: config.whatsappEnabled && phoneDigits, href: waHref, icon: config.whatsappIcon, label: "WhatsApp" },
+      { key: "whatsapp", enabled: config.whatsappEnabled && waPhoneDigits, href: waHref, icon: config.whatsappIcon, label: "WhatsApp" },
       { key: "viber", enabled: config.viberEnabled && phoneDigits, href: vbHref, icon: config.viberIcon, label: "Viber" },
       { key: "max", enabled: config.maxEnabled && maxId, href: maxHref, icon: config.maxIcon, label: "Max" },
       { key: "vk", enabled: config.vkEnabled && vkRaw, href: vkHref, icon: config.vkIcon, label: "VK" }

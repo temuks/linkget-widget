@@ -25,6 +25,7 @@
   data-description="Напишите или позвоните нам."
   data-message-text="Здравствуйте! Интересует информация с сайта."
   data-phone-number="+70000000000"
+  data-whatsapp-id="70000000001"
   data-telegram-id="support_group"
   data-max-id="your_max_profile_id"
   data-position="bottom-right"
@@ -46,7 +47,8 @@
 | `data-title` | Заголовок модалки |
 | `data-description` | Подзаголовок (описание) |
 | `data-message-text` | Предзаполненный текст (WhatsApp, Telegram; Viber и Max не поддерживают) |
-| `data-phone-number` | Номер телефона (звонок + WhatsApp + Viber) |
+| `data-phone-number` | Номер телефона (звонок + Viber, fallback для WhatsApp) |
+| `data-whatsapp-id` | Номер для WhatsApp. Если заполнено — используется вместо `data-phone-number` |
 | `data-telegram-id` | Username или группа Telegram (`support_group`, `joinchat/xxx`) |
 | `data-max-id` | ID профиля Max из ссылки (длинная строка или username) |
 | `data-vk-id` | Короткое имя группы VK (например `club123456` или `groupname`) |
@@ -61,6 +63,7 @@
     description: "Напишите или позвоните нам.",
     messageText: "Здравствуйте! Интересует информация с сайта.",
     phoneNumber: "+70000000000",
+    whatsappId: "70000000001",
     telegramId: "support_group",
     maxId: "your_max_profile_id",
     vkId: "your_vk_group"
